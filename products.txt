@@ -1,10 +1,9 @@
-# Product, Amount on Shelves, Amount in Stock
 Eggs, 500, 1200
 Milk, 200, 550
 Bread, 180, 250
 Cheese, 150, 450
 Cereal, 120, 600
-Apples, 90, 120
+Apples, 90, 480
 Chicken, 45, 300
 Rice, 30, 450
 Tomatoes, 280, 750
@@ -16,6 +15,6 @@ Salmon, 40, 350
 Bananas, 180, 250
 Coffee, 95, 120
 Toilet Paper, 50, 150
-Shampoo, 38, 45
-Spinach, 70, 80
-Beef, 20, 150
+Shampoo, 38, 450
+Spinach, 70, 500
+Beef, 20, 240

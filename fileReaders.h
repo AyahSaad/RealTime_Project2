@@ -12,5 +12,6 @@ extern int CUSTOMER_SHOPPING_TIME_LOWER;
 extern int CUSTOMER_SHOPPING_TIME_UPPER;
 
 void readConfigFile(const char *filename);
+void readProductsFile(const char *filename);
 
 #endif
