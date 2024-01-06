@@ -1,21 +1,21 @@
-# Product, Amount on Shelves, Amount in Stock, Threshold
-Eggs, 500, 1200, 20
-Milk, 200, 550, 15
-Bread, 180, 250, 10
-Cheese, 150, 450, 8
-Cereal, 120, 600, 12
-Apples, 90, 120, 8
-Chicken, 45, 300, 30
-Rice, 30, 450, 18
-Tomatoes, 280, 750, 5
-Orange, 185, 220, 15
-Pasta, 240, 600, 2
-Yogurt, 40, 170, 4
-Potatoes, 90, 350, 5
-Salmon, 40, 350, 12
-Bananas, 180, 250, 1
-Coffee, 95, 120, 8
-Toilet Paper, 50, 150, 10
-Shampoo, 38, 45, 6
-Spinach, 70, 80, 5
-Beef, 20, 150, 7
+# Product, Amount on Shelves, Amount in Stock
+Eggs, 500, 1200
+Milk, 200, 550
+Bread, 180, 250
+Cheese, 150, 450
+Cereal, 120, 600
+Apples, 90, 120
+Chicken, 45, 300
+Rice, 30, 450
+Tomatoes, 280, 750
+Orange, 185, 220
+Pasta, 240, 600
+Yogurt, 40, 170
+Potatoes, 90, 350
+Salmon, 40, 350
+Bananas, 180, 250
+Coffee, 95, 120
+Toilet Paper, 50, 150
+Shampoo, 38, 45
+Spinach, 70, 80
+Beef, 20, 150
