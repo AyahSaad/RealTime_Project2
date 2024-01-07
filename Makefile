@@ -1,10 +1,10 @@
 # Makefile for Supermarket Product Shelving Simulation
 
 CC = gcc
-CFLAGS = -Wall -lGL -lGLU -lglut -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -pthread -lpthread -lXi -ldl -lXinerama -lXcursor -lm -g
+CFLAGS = -Wall -pthread -lpthread  -g
 
 # List of source files
-SRCS = main.c fileReaders.c shelvingTeams.c customers.c openGLfunctions.c
+SRCS = main.c fileReaders.c shelvingTeams.c customers.c 
 
 # List of object files
 OBJS = $(SRCS:.c=.o)

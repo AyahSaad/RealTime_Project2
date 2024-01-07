@@ -7,5 +7,3 @@ void simulateCustomerArrival(int *shelfQuantities);
 int getRandomNumber(int lower, int upper);
 
 #endif
-
-

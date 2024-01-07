@@ -59,5 +59,4 @@ void simulateCustomerArrival(int *shelfQuantities) {
             }
         }
     }
-
 }

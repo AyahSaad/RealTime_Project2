@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 int PRODUCT_COUNT;
 int NUM_SHELVING_TEAMS;
@@ -13,56 +15,98 @@ int CUSTOMER_ARRIVAL_RATE_UPPER;
 int CUSTOMER_SHOPPING_TIME_LOWER;
 int CUSTOMER_SHOPPING_TIME_UPPER;
 
+Product *products;
+
+#define SHM_KEY 1234  
+
+Product *initSharedMemory() {
+    int shmid;
+
+    shmid = shmget(SHM_KEY, sizeof(Product) * PRODUCT_COUNT, IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    Product *p = shmat(shmid, NULL, 0);
+    if (p == (Product *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < PRODUCT_COUNT; i++) {
+        pthread_mutex_init(&p[i].productMutex, NULL);
+    }
+
+    return p;
+}
+
+void cleanupSharedMemory() {
+    if (shmdt(products) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+
+    if (shmctl(shmget(SHM_KEY, sizeof(Product) * PRODUCT_COUNT, IPC_CREAT | 0666), IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        exit(EXIT_FAILURE);
+    }
+}
+
 void readProductsFile(const char *filename) {
+
+    products = initSharedMemory();
+
     FILE *file = fopen(filename, "r");
 
     if (file == NULL) {
-        printf("Error opening file: %s\n", filename);
         perror("Error opening file");
-        return;
+        cleanupSharedMemory();
+        exit(EXIT_FAILURE);
     }
 
     char line[500];
-    while (fgets(line, sizeof(line), file) != NULL) {
-
+    int i = 0;
+    while (fgets(line, sizeof(line), file) != NULL && i < PRODUCT_COUNT) {
         char *token = strtok(line, ",");
-
         if (token == NULL) {
             break;
         }
 
-        char productName[500];
-        strcpy(productName, token);
+        strcpy(products[i].name, token);
 
         token = strtok(NULL, ",");
-        
         if (token == NULL) {
             break;
         }
 
-        int amountOnShelves = atoi(token);
+        products[i].initialAmountOnShelves = atoi(token);
 
         token = strtok(NULL, ",");
-        
         if (token == NULL) {
             break;
         }
 
-        int amountInStock = atoi(token);
-        printf("Product: %s, Amount on Shelves: %d, Amount in Stock: %d\n", productName, amountOnShelves, amountInStock);
-       
+        products[i].amountInStock = atoi(token);
+
+        pthread_mutex_init(&products[i].productMutex, NULL);
+
+        printf("Product: %s, Amount on Shelves: %d, Amount in Stock: %d\n",
+               products[i].name, products[i].initialAmountOnShelves, products[i].amountInStock);
+        
+        i++;
     }
 
     fclose(file);
 }
 
-void readConfigFile(const char *filename) {
+void readConfigurationFile(const char *filename) {
     FILE *file = fopen(filename, "r");
 
     if (file == NULL) {
-        printf("Error opening file: %s\n", filename);
         perror("Error opening file");
-        return;
+        cleanupSharedMemory();
+        exit(EXIT_FAILURE);
     }
 
     char line[500];
@@ -71,7 +115,6 @@ void readConfigFile(const char *filename) {
         char *token = strtok(line, ":");
 
         if (token == NULL) {
-
             break;
         }
 
@@ -79,9 +122,8 @@ void readConfigFile(const char *filename) {
         strcpy(variableName, token);
 
         token = strtok(NULL, ":");
-        
-        if (token == NULL) {
 
+        if (token == NULL) {
             break;
         }
 
@@ -117,15 +159,4 @@ void readConfigFile(const char *filename) {
     }
 
     fclose(file);
-    
-    printf("PRODUCT_COUNT: %d\n", PRODUCT_COUNT);
-    printf("NUM_SHELVING_TEAMS: %d\n", NUM_SHELVING_TEAMS);
-    printf("NUM_EMPLOYEES_PER_TEAM: %d\n", NUM_EMPLOYEES_PER_TEAM);
-    printf("SHELF_THRESHOLD: %d\n", SHELF_THRESHOLD);
-    printf("MAX_SIMULATION_TIME: %d\n", MAX_SIMULATION_TIME);
-    printf("CUSTOMER_ARRIVAL_RATE_LOWER: %d\n", CUSTOMER_ARRIVAL_RATE_LOWER);
-    printf("CUSTOMER_ARRIVAL_RATE_UPPER: %d\n", CUSTOMER_ARRIVAL_RATE_UPPER);
-    printf("CUSTOMER_SHOPPING_TIME_LOWER: %d\n", CUSTOMER_SHOPPING_TIME_LOWER);
-    printf("CUSTOMER_SHOPPING_TIME_UPPER: %d\n", CUSTOMER_SHOPPING_TIME_UPPER);
-
 }

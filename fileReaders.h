@@ -1,5 +1,13 @@
-#ifndef FILE_READERS_H
-#define FILE_READERS_H
+#ifndef FILEREADERS_H
+#define FILEREADERS_H
+#include <pthread.h>
+
+typedef struct {
+    char name[100];
+    int initialAmountOnShelves;
+    int amountInStock;
+    pthread_mutex_t productMutex;  // Mutex for each product
+} Product;
 
 extern int PRODUCT_COUNT;
 extern int NUM_SHELVING_TEAMS;
@@ -11,7 +19,10 @@ extern int CUSTOMER_ARRIVAL_RATE_UPPER;
 extern int CUSTOMER_SHOPPING_TIME_LOWER;
 extern int CUSTOMER_SHOPPING_TIME_UPPER;
 
-void readConfigFile(const char *filename);
+extern Product *products;
+
 void readProductsFile(const char *filename);
+void readConfigurationFile(const char *filename);
+void cleanupSharedMemory();
 
 #endif
