@@ -13,7 +13,6 @@ int getRandomNumber(int lower, int upper) {
 void simulateCustomerShopping(int customerID) {
     printf("Customer %d started shopping.\n", customerID);
 
-
     int shoppingTime = rand() % (CUSTOMER_SHOPPING_TIME_UPPER - CUSTOMER_SHOPPING_TIME_LOWER + 1) +
                        CUSTOMER_SHOPPING_TIME_LOWER;
 
@@ -32,31 +31,21 @@ void simulateCustomerShopping(int customerID) {
 }
 
 void simulateCustomerArrival(int *shelfQuantities) {
+    
+    srand(time(NULL) ^ (getpid() << 16));
 
-        int arrivalPid = getpid();
-        printf("I am arrival maker %d\n", arrivalPid);
-
-        srand(time(NULL) ^ (getpid() << 16));
-
+    while (1) {
         int randArrival = getRandomNumber(CUSTOMER_ARRIVAL_RATE_LOWER, CUSTOMER_ARRIVAL_RATE_UPPER);
-
         printf("Arrival time: %d\n", randArrival);
 
-  while (1)
-    {
+        sleep(randArrival);
+        
+        int forkAcustomer = fork();
 
-        if (getpid() == arrivalPid)
-        {
-
-            sleep(randArrival);
-            int forkAcustomer = fork();
-
-            if (forkAcustomer == 0) 
-            {
-                printf("I am customer %d \n", getpid());
-                simulateCustomerShopping(getpid());
-           
-            }
+        if (forkAcustomer == 0) {
+            printf("I am customer %d \n", getpid());
+            simulateCustomerShopping(getpid());
+            exit(EXIT_SUCCESS);
         }
     }
 }
