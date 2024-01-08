@@ -13,22 +13,49 @@ int getRandomNumber(int lower, int upper) {
 void simulateCustomerShopping(int customerID) {
     printf("Customer %d started shopping.\n", customerID);
 
+    // Dynamically allocate an array to keep track of which products the customer has already picked
+    int *productsPicked = malloc(sizeof(int) * PRODUCT_COUNT);
+    if (productsPicked == NULL) {
+        perror("Failed to allocate memory for productsPicked");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < PRODUCT_COUNT; i++) {
+        productsPicked[i] = 0;
+    }
+
     int shoppingTime = rand() % (CUSTOMER_SHOPPING_TIME_UPPER - CUSTOMER_SHOPPING_TIME_LOWER + 1) +
                        CUSTOMER_SHOPPING_TIME_LOWER;
-
     sleep(shoppingTime);
 
-    // Simulate choosing items and quantities
-    for (int i = 0; i < PRODUCT_COUNT; i++) {
-        pthread_mutex_lock(&products[i].productMutex);  
-        int quantity = getRandomNumber(1, products[i].initialAmountOnShelves);
-        printf("Customer %d picked %d units of %s.\n", customerID, quantity, products[i].name);
-        products[i].initialAmountOnShelves -= quantity;
-        pthread_mutex_unlock(&products[i].productMutex);  
+    int numProductsToPick = getRandomNumber(1, PRODUCT_COUNT);
+
+    
+    for (int i = 0; i < numProductsToPick; i++) {
+      
+        int productIndex;
+        do {
+            productIndex = getRandomNumber(0, PRODUCT_COUNT - 1);
+        } while (productsPicked[productIndex] == 1);
+
+        pthread_mutex_lock(&products[productIndex].productMutex);
+
+        int maxQuantity = products[productIndex].initialAmountOnShelves;
+        int quantity = getRandomNumber(1, maxQuantity);
+        printf("Customer %d picked %d units of %s.\n", customerID, quantity, products[productIndex].name);
+
+        products[productIndex].initialAmountOnShelves -= quantity;
+        productsPicked[productIndex] = 1;
+
+        pthread_mutex_unlock(&products[productIndex].productMutex);
     }
+
+    
+    free(productsPicked);
 
     printf("Customer %d finished shopping.\n", customerID);
 }
+
 
 void simulateCustomerArrival(int *shelfQuantities) {
     
