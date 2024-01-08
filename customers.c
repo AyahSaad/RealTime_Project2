@@ -1,5 +1,5 @@
-#include "fileReaders.h"
 #include "customer.h"
+#include "fileReaders.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,15 +26,12 @@ void simulateCustomerShopping(int customerID) {
 
     int shoppingTime = rand() % (CUSTOMER_SHOPPING_TIME_UPPER - CUSTOMER_SHOPPING_TIME_LOWER + 1) +
                        CUSTOMER_SHOPPING_TIME_LOWER;
-
     sleep(shoppingTime);
 
     int numProductsToPick = getRandomNumber(1, PRODUCT_COUNT);
 
     for (int i = 0; i < numProductsToPick; i++) {
-
         int productIndex;
-
         do {
             productIndex = getRandomNumber(0, PRODUCT_COUNT - 1);
         } while (productsPicked[productIndex] == 1);
@@ -43,15 +40,13 @@ void simulateCustomerShopping(int customerID) {
 
         int maxQuantity = products[productIndex].initialAmountOnShelves;
 
-        // Introduce a factor to increase the maximum quantity (2 times)
+        // Introduce a factor to increase the maximum quantity (e.g., 2 times)
         double quantityFactor = 2.0;
-
-        int quantity = getRandomNumber(1, min(maxQuantity, (int)(quantityFactor * maxQuantity)));
+        int quantity = getRandomNumber(5, min(maxQuantity, (int)(quantityFactor * maxQuantity)));
 
         printf("Customer %d picked %d units of %s.\n", customerID, quantity, products[productIndex].name);
 
         products[productIndex].initialAmountOnShelves -= quantity;
-
         productsPicked[productIndex] = 1;
 
         pthread_mutex_unlock(&products[productIndex].productMutex);
