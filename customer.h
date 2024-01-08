@@ -5,7 +5,7 @@
 void simulateCustomerShopping(int customerID);
 void simulateCustomerArrival(int *shelfQuantities);
 int getRandomNumber(int lower, int upper);
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+
 
 #endif
 

@@ -40,9 +40,7 @@ void simulateCustomerShopping(int customerID) {
 
         int maxQuantity = products[productIndex].initialAmountOnShelves;
 
-        // Introduce a factor to increase the maximum quantity (2 times)
-        double quantityFactor = 2.0;
-        int quantity = getRandomNumber(5, min(maxQuantity, (int)(quantityFactor * maxQuantity)));
+       int quantity = getRandomNumber(4, maxQuantity);
 
         printf("Customer %d picked %d units of %s.\n", customerID, quantity, products[productIndex].name);
 
