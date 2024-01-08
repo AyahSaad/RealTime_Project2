@@ -91,8 +91,8 @@ void readProductsFile(const char *filename) {
 
         pthread_mutex_init(&products[i].productMutex, NULL);
 
-        printf("Product: %s, Amount on Shelves: %d, Amount in Stock: %d\n",
-               products[i].name, products[i].initialAmountOnShelves, products[i].amountInStock);
+       /* printf("Product: %s, Amount on Shelves: %d, Amount in Stock: %d\n",
+               products[i].name, products[i].initialAmountOnShelves, products[i].amountInStock);*/
         
         i++;
     }
