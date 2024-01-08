@@ -26,7 +26,7 @@ void simulateCustomerShopping(int customerID) {
 
     int shoppingTime = rand() % (CUSTOMER_SHOPPING_TIME_UPPER - CUSTOMER_SHOPPING_TIME_LOWER + 1) +
                        CUSTOMER_SHOPPING_TIME_LOWER;
-                       
+
     sleep(shoppingTime);
 
     int numProductsToPick = getRandomNumber(1, PRODUCT_COUNT);
@@ -45,7 +45,8 @@ void simulateCustomerShopping(int customerID) {
 
         // Introduce a factor to increase the maximum quantity (2 times)
         double quantityFactor = 2.0;
-        int quantity = getRandomNumber(1, (int)(quantityFactor * maxQuantity));
+
+        int quantity = getRandomNumber(1, min(maxQuantity, (int)(quantityFactor * maxQuantity)));
 
         printf("Customer %d picked %d units of %s.\n", customerID, quantity, products[productIndex].name);
 
