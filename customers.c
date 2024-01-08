@@ -40,7 +40,7 @@ void simulateCustomerShopping(int customerID) {
 
         int maxQuantity = products[productIndex].initialAmountOnShelves;
 
-        // Introduce a factor to increase the maximum quantity (e.g., 2 times)
+        // Introduce a factor to increase the maximum quantity (2 times)
         double quantityFactor = 2.0;
         int quantity = getRandomNumber(5, min(maxQuantity, (int)(quantityFactor * maxQuantity)));
 
