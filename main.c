@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/ipc.h>
-#include "customer.h"  
+#include "customer.h"
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
@@ -13,15 +13,27 @@
 #include <pthread.h>
 #include "fileReaders.h"
 
-int main() {
-    const char *configFilePath = "argument.txt";
-    const char *productFilePath = "products.txt";
+int main()
+{
+    char *configFilePath = "arguments.txt";
+    char *productFilePath = "products.txt";
 
     readConfigurationFile(configFilePath);
     readProductsFile(productFilePath);
 
+    int pid = fork();
+
+    if (pid == 0)
+    {
+        for (int i = 0; i < PRODUCT_COUNT; i++)
+        {
+            printf("%s\n", products[i].name);
+        }
+    }
+
     int shelfQuantities[PRODUCT_COUNT];
-    for (int i = 0; i < PRODUCT_COUNT; ++i) {
+    for (int i = 0; i < PRODUCT_COUNT; ++i)
+    {
         shelfQuantities[i] = products[i].initialAmountOnShelves;
     }
 

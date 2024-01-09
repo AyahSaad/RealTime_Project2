@@ -2,11 +2,13 @@
 #define FILEREADERS_H
 #include <pthread.h>
 
-typedef struct {
+typedef struct
+{
     char name[100];
     int initialAmountOnShelves;
     int amountInStock;
-    pthread_mutex_t productMutex;  // Mutex for each product
+    int underThreshold;
+    pthread_mutex_t productMutex; // Mutex for each product
 } Product;
 
 extern int PRODUCT_COUNT;
