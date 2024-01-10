@@ -3,10 +3,7 @@
 #include "fileReaders.h"
 
 void simulateCustomerShopping(int customerID);
-void simulateCustomerArrival(int *shelfQuantities);
+void simulateCustomerArrival();
 int getRandomNumber(int lower, int upper);
 
-
 #endif
-
-

@@ -1,4 +1,3 @@
-
 {
     "configurations": [
         {
@@ -16,16 +15,15 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
-                // Add additional include paths for Linux if needed
+                "${workspaceFolder}/**"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "/path/to/your/linux/compiler",  // Set the correct compiler path for Linux
-            "cStandard": "c11",
+            "compilerPath": "/path/to/your/linux/compiler",
+            "cStandard": "gnu99",
             "cppStandard": "c++17",
             "intelliSenseMode": "gcc-x64",
             "browse": {

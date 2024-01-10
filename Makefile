@@ -4,7 +4,7 @@ CC = gcc
 CFLAGS = -Wall -pthread -lpthread  -g
 
 # List of source files
-SRCS = main.c fileReaders.c shelvingTeams.c customers.c 
+SRCS = main.c fileReaders.c team.c customers.c 
 
 # List of object files
 OBJS = $(SRCS:.c=.o)

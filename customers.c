@@ -6,7 +6,8 @@
 #include <sys/types.h>
 #include <time.h>
 
-int getRandomNumber(int lower, int upper) {
+int getRandomNumber(int lower, int upper)
+{
     return rand() % (upper - lower + 1) + lower;
 }
 
@@ -55,8 +56,8 @@ int getRandomNumber(int lower, int upper) {
     printf("Customer %d finished shopping.\n", customerID);
 } */
 
-
-void simulateCustomerShopping(int customerID) {
+void simulateCustomerShopping(int customerID)
+{
     printf("Customer %d started shopping.\n", customerID);
 
     int shoppingTime = rand() % (CUSTOMER_SHOPPING_TIME_UPPER - CUSTOMER_SHOPPING_TIME_LOWER + 1) +
@@ -66,20 +67,24 @@ void simulateCustomerShopping(int customerID) {
     int startingProductIndex = getRandomNumber(0, PRODUCT_COUNT - 1);
     int numProductsToPick = getRandomNumber(1, PRODUCT_COUNT);
 
-    for (int i = 0; i < numProductsToPick; i++) {
+    for (int i = 0; i < numProductsToPick; i++)
+    {
         int productIndex = (startingProductIndex + i) % PRODUCT_COUNT;
 
         pthread_mutex_lock(&products[productIndex].productMutex);
 
         int maxQuantity = products[productIndex].initialAmountOnShelves;
 
-        if (maxQuantity > 0) {
+        if (maxQuantity > 0)
+        {
             int quantity = getRandomNumber(4, maxQuantity);
 
             printf("Customer %d picked %d units of %s.\n", customerID, quantity, products[productIndex].name);
 
             products[productIndex].initialAmountOnShelves -= quantity;
-        } else {
+        }
+        else
+        {
             printf("Customer %d wanted to pick %s, but it's out of stock.\n", customerID, products[productIndex].name);
         }
 
@@ -89,20 +94,21 @@ void simulateCustomerShopping(int customerID) {
     printf("Customer %d finished shopping.\n", customerID);
 }
 
-
-void simulateCustomerArrival(int *shelfQuantities) {
-    
+void simulateCustomerArrival()
+{
     srand(time(NULL) ^ (getpid() << 16));
 
-    while (1) {
+    while (1)
+    {
         int randArrival = getRandomNumber(CUSTOMER_ARRIVAL_RATE_LOWER, CUSTOMER_ARRIVAL_RATE_UPPER);
         printf("Arrival time: %d\n", randArrival);
 
         sleep(randArrival);
-        
+
         int forkAcustomer = fork();
 
-        if (forkAcustomer == 0) {
+        if (forkAcustomer == 0)
+        {
             printf("I am customer %d \n", getpid());
             simulateCustomerShopping(getpid());
             exit(EXIT_SUCCESS);
