@@ -1,10 +1,12 @@
 #include "customer.h"
 #include "fileReaders.h"
+#include "team.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <time.h>
+#include <sys/prctl.h>
 
 int getRandomNumber(int lower, int upper)
 {
@@ -94,24 +96,30 @@ void simulateCustomerShopping(int customerID)
     printf("Customer %d finished shopping.\n", customerID);
 }
 
-void simulateCustomerArrival()
+void simulateCustomerArrival(int qid)
 {
+    int arrivalPid = getpid();
     srand(time(NULL) ^ (getpid() << 16));
+    int randArrival = getRandomNumber(CUSTOMER_ARRIVAL_RATE_LOWER, CUSTOMER_ARRIVAL_RATE_UPPER);
+    printf("Arrival time: %d\n", randArrival);
 
     while (1)
     {
-        int randArrival = getRandomNumber(CUSTOMER_ARRIVAL_RATE_LOWER, CUSTOMER_ARRIVAL_RATE_UPPER);
-        printf("Arrival time: %d\n", randArrival);
-
-        sleep(randArrival);
-
-        int forkAcustomer = fork();
-
-        if (forkAcustomer == 0)
+        if (getpid() == arrivalPid)
         {
-            printf("I am customer %d \n", getpid());
-            simulateCustomerShopping(getpid());
-            exit(EXIT_SUCCESS);
+
+            sleep(randArrival);
+
+            int forkAcustomer = fork();
+
+            if (forkAcustomer == 0)
+            {
+                char *name = "CustomerProc";
+                prctl(PR_SET_NAME, (unsigned long)name);
+
+                printf("I am customer %d \n", getpid());
+                simulateCustomerShopping(getpid());
+            }
         }
     }
 }

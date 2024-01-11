@@ -52,10 +52,10 @@ int main()
 
     pthread_mutex_init(&totalInStockMutex, &mutex_shared_attr);
 
-    pthread_mutex_lock(&totalInStockMutex);
-    *totalInStock = 3; // set initial value of total in stock to 0
-    printf("shm customer  is  %d\n", *totalInStock);
-    pthread_mutex_unlock(&totalInStockMutex);
+    // pthread_mutex_lock(&totalInStockMutex);
+    // *totalInStock = 3; // set initial value of total in stock to 0
+    // printf("shm customer  is  %d\n", *totalInStock);
+    // pthread_mutex_unlock(&totalInStockMutex);
 
     char *configFilePath = "arguments.txt";
     char *productFilePath = "products.txt";
@@ -103,11 +103,47 @@ int main()
             hasEntered = 1;
             printf("I am team %d and my type is %ld \n", i, teamType);
 
-            teamFunc(teamType, qid, totalInStock, totalInStockMutex, products);
+            teamFunc(teamType, qid, totalInStock, &totalInStockMutex);
         }
     }
 
-    // simulateCustomerArrival();
+    // sleep(30);
+    if (getpid() == mainParent)
+    {
+
+        int forkArrivals = fork();
+
+        if (forkArrivals == -1)
+        {
+            printf("fork failure... getting out\n");
+            perror("fork");
+        }
+
+        if (forkArrivals == 0)
+        {
+            char *name = "ArrivalsProc";
+            prctl(PR_SET_NAME, (unsigned long)name);
+            simulateCustomerArrival(qid);
+        }
+        else
+        {
+
+            wait(forkArrivals);
+            // TODO: openGL and Sig Alaram for termination
+
+            // glutInit(&argc, argv);
+            // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+            // glutInitWindowSize(windowWidth, windowHeight);
+            // glutCreateWindow("Cash Registers");
+
+            // glutDisplayFunc(display);
+            // glutReshapeFunc(reshape);
+
+            // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set clear color to black
+
+            // glutMainLoop();
+        }
+    }
 
     // Cleanup shared memory
     // cleanupSharedMemory();

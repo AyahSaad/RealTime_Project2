@@ -6,8 +6,9 @@ typedef struct
 {
     char name[100];
     int initialAmountOnShelves;
+    int currentAmountOnShelves;
     int amountInStock;
-    int underThreshold;
+    int underThreshold;           // flag to indicate that it's under threshold
     pthread_mutex_t productMutex; // Mutex for each product
 } Product;
 
