@@ -68,7 +68,7 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
             // printf("on shelve %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
 
-            if (products[productNext].amountInStock > productsCount)
+            if (products[productNext].amountInStock >= productsCount)
             {
 
                 products[productNext].amountInStock -= productsCount;
@@ -97,9 +97,11 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
             // printf("on shelve after %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
 
-            sleep(productsCount); // simulate work
-
             pthread_mutex_unlock(&productMutex);
+
+            // TODO: add manager count in stock
+
+            sleep((productsCount / 20) + 1); // simulate work
 
             pthread_mutex_lock(&condMutex);
 
@@ -110,6 +112,12 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
             pthread_mutex_unlock(&condMutex);
 
             pthread_barrier_wait(&barrier); // wait on barrier until all threads are done
+
+            pthread_mutex_lock(&productMutex);
+
+            products[productNext].underThreshold = 0;
+
+            pthread_mutex_unlock(&productMutex);
 
             pthread_mutex_lock(&condMutex);
             /*reset cond flag so employees can wait for it.
@@ -160,7 +168,7 @@ void *thread_function(void *arg)
 
         printf("on shelve after %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
 
-        sleep(numberToShelf); // simulate work
+        sleep((numberToShelf / 10) + 1); // simulate work
 
         pthread_mutex_unlock(&productMutex);
 

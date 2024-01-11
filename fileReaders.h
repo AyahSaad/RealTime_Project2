@@ -10,6 +10,7 @@ typedef struct
     int amountInStock;
     int underThreshold;           // flag to indicate that it's under threshold
     pthread_mutex_t productMutex; // Mutex for each product
+    
 } Product;
 
 extern int PRODUCT_COUNT;
