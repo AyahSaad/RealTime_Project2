@@ -93,6 +93,7 @@ void readProductsFile(const char *filename, int *totalInStock)
         }
 
         products[i].initialAmountOnShelves = atoi(token);
+        products[i].currentAmountOnShelves = atoi(token);
 
         token = strtok(NULL, ",");
         if (token == NULL)
@@ -110,6 +111,8 @@ void readProductsFile(const char *filename, int *totalInStock)
         pthread_mutexattr_setpshared(&mutex_shared_attr, PTHREAD_PROCESS_SHARED);
 
         pthread_mutex_init(&products[i].productMutex, &mutex_shared_attr);
+
+        products[i].underThreshold = 0;
 
         i++;
     }

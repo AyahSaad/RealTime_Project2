@@ -127,8 +127,9 @@ int main()
         }
         else
         {
+            int status;
+            waitpid(forkArrivals, &status, 0);
 
-            wait(forkArrivals);
             // TODO: openGL and Sig Alaram for termination
 
             // glutInit(&argc, argv);

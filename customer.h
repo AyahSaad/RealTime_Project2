@@ -2,7 +2,7 @@
 #define CUSTOMER_H
 #include "fileReaders.h"
 
-void simulateCustomerShopping(int customerID);
+void simulateCustomerShopping(int customerID, int qid);
 void simulateCustomerArrival(int qid);
 int getRandomNumber(int lower, int upper);
 
