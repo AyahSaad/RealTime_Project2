@@ -87,7 +87,7 @@ void simulateCustomerShopping(int customerID, int qid)
 
             products[productIndex].currentAmountOnShelves -= quantity;
 
-            if (products[productIndex].currentAmountOnShelves <= SHELF_THRESHOLD && products[productIndex].amountInStock > 0 && products[productIndex].underThreshold !=1)
+            if (products[productIndex].currentAmountOnShelves <= SHELF_THRESHOLD && products[productIndex].amountInStock > 0 && products[productIndex].underThreshold != 1)
             {
                 products[productIndex].underThreshold = 1;
 

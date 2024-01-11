@@ -19,12 +19,12 @@
 #include "team.h"
 
 int mainParent;
+int totalInStockShmid;
 
 int main()
 {
     mainParent = getpid();
 
-    int totalInStockShmid;
     key_t totalInStockKey = ftok(".", 's'); // Generate a key for cashiers left int shm
 
     if ((totalInStockShmid = shmget(totalInStockKey, sizeof(int), IPC_CREAT | 0666)) < 0)

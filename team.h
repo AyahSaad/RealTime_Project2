@@ -21,7 +21,6 @@ typedef struct
 
 typedef struct
 {
-
     long mtype;
     int index;
 
