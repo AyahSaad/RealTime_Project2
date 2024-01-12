@@ -58,9 +58,10 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
         if ((recived = msgrcv(qid, &notifier, notifierLenghth, type, IPC_NOWAIT)) != -1)
         {
+            // TODO: here manager receives a message and starts work
             printf("here -----------------------------\n");
 
-            productNext = notifier.index;
+            productNext = notifier.index; // TODO: this is the index of the product they will be working on
             pthread_mutex_t productMutex = products[productNext].productMutex;
 
             pthread_mutex_lock(&productMutex);
@@ -109,12 +110,15 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
             pthread_mutex_lock(&condMutex);
 
             // Signal all threads that a task is available
+            // TODO: here employees become active
             task_completed = 1;
             pthread_cond_broadcast(&task_available);
 
             pthread_mutex_unlock(&condMutex);
-
+            // TODO: here after the manger brought the stock from storage he waits for employees to finish their job (manager not active but the employees are working)
             pthread_barrier_wait(&barrier); // wait on barrier until all threads are done
+
+            // TODO: here the team finished its job and is going back to sleep
 
             pthread_mutex_lock(&productMutex);
 
