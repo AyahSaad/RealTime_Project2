@@ -59,6 +59,8 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
         if ((recived = msgrcv(qid, &notifier, notifierLenghth, type, IPC_NOWAIT)) != -1)
         {
+            sleep(2);
+
             // TODO: here manager receives a message and starts work
             printf("here -----------------------------team %ld\n", notifier.mtype);
 
@@ -157,7 +159,7 @@ void *thread_function(void *arg)
 
     while (1)
     {
-        sleep(4); // wait a bit to make sure that the flag had been reset by manager
+        sleep(2); // wait a bit to make sure that the flag had been reset by manager
 
         pthread_mutex_lock(args.condMutex);
 
