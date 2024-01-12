@@ -21,7 +21,46 @@ Product *products;
 
 key_t Productskey;
 
-Product *initSharedMemory()
+// Product *initSharedMemory()
+// {
+//     Productskey = ftok("products.txt", 'R');
+
+//     int shmid;
+
+//     shmid = shmget(Productskey, sizeof(Product) * PRODUCT_COUNT, IPC_CREAT | 0666);
+//     if (shmid == -1)
+//     {
+//         perror("shmget");
+//         exit(EXIT_FAILURE);
+//     }
+
+//     Product *p = shmat(shmid, NULL, 0);
+//     if (p == (Product *)-1)
+//     {
+//         perror("shmat");
+//         exit(EXIT_FAILURE);
+//     }
+
+//     return p;
+// }
+
+void cleanupSharedMemory()
+{
+    if (shmdt(products) == -1)
+    {
+        printf("shmdt failed");
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+
+    if (shmctl(shmget(Productskey, sizeof(Product) * PRODUCT_COUNT, IPC_CREAT | 0666), IPC_RMID, NULL) == -1)
+    {
+        perror("shmctl");
+        exit(EXIT_FAILURE);
+    }
+}
+
+int readProductsFile(const char *filename, int *totalInStock)
 {
     Productskey = ftok("products.txt", 'R');
 
@@ -41,29 +80,7 @@ Product *initSharedMemory()
         exit(EXIT_FAILURE);
     }
 
-    return p;
-}
-
-void cleanupSharedMemory()
-{
-    if (shmdt(products) == -1)
-    {
-        printf("shmdt failed");
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    if (shmctl(shmget(Productskey, sizeof(Product) * PRODUCT_COUNT, IPC_CREAT | 0666), IPC_RMID, NULL) == -1)
-    {
-        perror("shmctl");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void readProductsFile(const char *filename, int *totalInStock)
-{
-
-    products = initSharedMemory();
+    products = p;
 
     FILE *file = fopen(filename, "r");
 
@@ -119,6 +136,8 @@ void readProductsFile(const char *filename, int *totalInStock)
 
     fclose(file);
     printf("shm customer  is  %d\n", *totalInStock);
+
+    return shmid;
 }
 
 void readConfigurationFile(const char *filename)

@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <signal.h>
 
 void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInStockmutex)
 {
@@ -90,16 +91,18 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
                 *totalInStock -= productsCount;
 
-                pthread_mutex_unlock(totalInStockmutex);
+                if (*totalInStock == 0)
+                {
+                    kill(getppid(), SIGUSR1);
+                    // pthread_mutex_unlock(totalInStockmutex);
+                }
 
-                // TODO: check if in stock is zero for termination
+                pthread_mutex_unlock(totalInStockmutex);
             }
 
             // printf("on shelve after %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
 
             pthread_mutex_unlock(&productMutex);
-
-            // TODO: add manager count in stock
 
             sleep((productsCount / 20) + 1); // simulate work
 

@@ -25,7 +25,7 @@ extern int CUSTOMER_SHOPPING_TIME_UPPER;
 
 extern Product *products;
 
-void readProductsFile(const char *filename, int *totalInStock);
+int readProductsFile(const char *filename, int *totalInStock);
 void readConfigurationFile(const char *filename);
 void cleanupSharedMemory();
 

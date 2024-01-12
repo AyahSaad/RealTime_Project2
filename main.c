@@ -19,10 +19,50 @@
 #include "team.h"
 
 int mainParent;
+
 int totalInStockShmid;
+int productsShmid;
+int qid;
+
+void alarm_handler(int signo)
+{
+    if (signo == SIGALRM)
+    {
+        printf("Time's up! Terminating the process.\n");
+        msgctl(qid, IPC_RMID, NULL);
+        shmctl(totalInStockShmid, IPC_RMID, NULL);
+        shmctl(productsShmid, IPC_RMID, NULL);
+        kill(0, SIGKILL);
+    }
+}
+
+void sigusr1_handler(int signo)
+{
+
+    if (signo == SIGUSR1)
+    {
+        printf("Out of Stock! Terminating the process.\n");
+        msgctl(qid, IPC_RMID, NULL);
+        shmctl(totalInStockShmid, IPC_RMID, NULL);
+        shmctl(productsShmid, IPC_RMID, NULL);
+        kill(0, SIGKILL);
+    }
+}
 
 int main()
 {
+    if (signal(SIGUSR1, sigusr1_handler) == SIG_ERR)
+    {
+        perror("Error setting up signal handler");
+        return EXIT_FAILURE;
+    }
+
+    if (signal(SIGALRM, alarm_handler) == SIG_ERR)
+    {
+        perror("Error setting up signal handler");
+        return EXIT_FAILURE;
+    }
+
     mainParent = getpid();
 
     key_t totalInStockKey = ftok(".", 's'); // Generate a key for cashiers left int shm
@@ -61,10 +101,12 @@ int main()
     char *productFilePath = "products.txt";
 
     readConfigurationFile(configFilePath);
-    readProductsFile(productFilePath, totalInStock);
+    alarm(60 * MAX_SIMULATION_TIME);
 
-    key_t Queuekey = ftok(".", 'q');              // Generate a key for queue
-    int qid = msgget(Queuekey, IPC_CREAT | 0666); // Create a queue and get the queue id
+    productsShmid = readProductsFile(productFilePath, totalInStock);
+
+    key_t Queuekey = ftok(".", 'q');          // Generate a key for queue
+    qid = msgget(Queuekey, IPC_CREAT | 0666); // Create a queue and get the queue id
     printf("this is qid %d\n", qid);
     if (qid == -1)
     {
