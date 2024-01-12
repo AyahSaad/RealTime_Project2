@@ -61,13 +61,13 @@ void display() {
     drawStock(0.5f, redColor, screenWidth, screenHeight);  // Bottom rectangle in red
 
     float shelfHeight = 0.15f; // Adjust the shelf height as needed
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < PRODUCT_COUNT; i++) {
         float shelfCenter = -1.0f + 0.3f + i * 0.25f; // Calculate the center of the shelf
         drawShelf(shelfCenter, shelfHeight);
     }
 
     // Draw 10 white circles at the top of the screen with increased size and spacing
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < NUM_EMPLOYEES_PER_TEAM; i++) {
         float circleSpacing = 0.05f;
         float circleRadius = 0.08f;
         float circleX = -0.6f + i * (circleSpacing + 2 * circleRadius);
