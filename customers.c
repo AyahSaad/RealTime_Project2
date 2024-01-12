@@ -81,15 +81,28 @@ void simulateCustomerShopping(int customerID, int qid)
 
         if (maxQuantity > 0)
         {
-            int quantity = getRandomNumber(1, ((maxQuantity / 20) + 1));
+            int quantity = getRandomNumber(1, ((maxQuantity / 15) + 1));
 
             printf("Customer %d picked %d units of %s.\n", customerID, quantity, products[productIndex].name);
 
             products[productIndex].currentAmountOnShelves -= quantity;
 
+            // make changes in copy
+            // pthread_mutex_lock(&glCopyMutex);
+
+            // productsForGL[productIndex].currentAmountOnShelves -= quantity;
+
+            // pthread_mutex_unlock(&glCopyMutex);
+
             if (products[productIndex].currentAmountOnShelves <= SHELF_THRESHOLD && products[productIndex].amountInStock > 0 && products[productIndex].underThreshold != 1)
             {
                 products[productIndex].underThreshold = 1;
+
+                // pthread_mutex_lock(&glCopyMutex);
+
+                // productsForGL[productIndex].underThreshold = 1;
+
+                // pthread_mutex_unlock(&glCopyMutex);
 
                 Notifier notifier;
                 int notifierLenghth = sizeof(notifier) - sizeof(long);

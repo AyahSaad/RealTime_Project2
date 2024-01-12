@@ -4,17 +4,4 @@ Bread, 180, 250
 Cheese, 150, 450
 Cereal, 120, 600
 Apples, 90, 480
-Chicken, 45, 300
-Rice, 30, 450
-Tomatoes, 280, 750
-Orange, 185, 220
-Pasta, 240, 600
-Yogurt, 40, 170
-Potatoes, 90, 350
-Salmon, 40, 350
-Bananas, 180, 250
-Coffee, 95, 120
-Toilet Paper, 50, 150
-Shampoo, 38, 450
-Spinach, 70, 500
-Beef, 20, 240
+Chicken, 20, 300

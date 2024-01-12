@@ -10,7 +10,7 @@ typedef struct
     int amountInStock;
     int underThreshold;           // flag to indicate that it's under threshold
     pthread_mutex_t productMutex; // Mutex for each product
-    
+
 } Product;
 
 extern int PRODUCT_COUNT;
@@ -24,6 +24,8 @@ extern int CUSTOMER_SHOPPING_TIME_LOWER;
 extern int CUSTOMER_SHOPPING_TIME_UPPER;
 
 extern Product *products;
+
+extern pthread_mutexattr_t mutex_shared_attr;
 
 int readProductsFile(const char *filename, int *totalInStock);
 void readConfigurationFile(const char *filename);

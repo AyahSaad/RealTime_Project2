@@ -26,7 +26,12 @@ typedef struct
 
 } Notifier;
 
+extern int *managersInStock;
+extern pthread_mutex_t totalInStockMutex;
+extern int managerCountShmid;
+
 void *thread_function(void *arg);
 void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInStockmutex);
+void initManagerInStock();
 
 #endif

@@ -19,7 +19,14 @@ int CUSTOMER_SHOPPING_TIME_UPPER;
 
 Product *products;
 
+// Product *productsForGL;
+
 key_t Productskey;
+
+// key_t ProductskeyForGL;
+
+// pthread_mutex_t glCopyMutex;
+pthread_mutexattr_t mutex_shared_attr;
 
 // Product *initSharedMemory()
 // {
@@ -82,6 +89,35 @@ int readProductsFile(const char *filename, int *totalInStock)
 
     products = p;
 
+    // make copy for use in openGL
+
+    // ProductskeyForGL = ftok("products.txt", 'g');
+
+    // int shmidGL;
+
+    // shmidGL = shmget(ProductskeyForGL, sizeof(Product) * PRODUCT_COUNT, IPC_CREAT | 0666);
+    // if (shmidGL == -1)
+    // {
+    //     perror("shmget");
+    //     exit(EXIT_FAILURE);
+    // }
+
+    // Product *pg = shmat(shmidGL, NULL, 0);
+    // if (pg == (Product *)-1)
+    // {
+    //     perror("shmat");
+    //     exit(EXIT_FAILURE);
+    // }
+
+    // productsForGL = pg;
+
+    // pthread_mutexattr_init(&mutex_shared_attr);
+    // pthread_mutexattr_setpshared(&mutex_shared_attr, PTHREAD_PROCESS_SHARED);
+
+    // pthread_mutex_init(&glCopyMutex, &mutex_shared_attr);
+
+    ///////////////////////////////////////////////////////////////////
+
     FILE *file = fopen(filename, "r");
 
     if (file == NULL)
@@ -102,6 +138,7 @@ int readProductsFile(const char *filename, int *totalInStock)
         }
 
         strcpy(products[i].name, token);
+        // strcpy(productsForGL[i].name, token);
 
         token = strtok(NULL, ",");
         if (token == NULL)
@@ -112,6 +149,9 @@ int readProductsFile(const char *filename, int *totalInStock)
         products[i].initialAmountOnShelves = atoi(token);
         products[i].currentAmountOnShelves = atoi(token);
 
+        // productsForGL[i].initialAmountOnShelves = atoi(token);
+        // productsForGL[i].currentAmountOnShelves = atoi(token);
+
         token = strtok(NULL, ",");
         if (token == NULL)
         {
@@ -119,6 +159,7 @@ int readProductsFile(const char *filename, int *totalInStock)
         }
 
         products[i].amountInStock = atoi(token);
+        // productsForGL[i].amountInStock = atoi(token);
 
         *totalInStock += products[i].amountInStock;
 
@@ -130,12 +171,15 @@ int readProductsFile(const char *filename, int *totalInStock)
         pthread_mutex_init(&products[i].productMutex, &mutex_shared_attr);
 
         products[i].underThreshold = 0;
+        // productsForGL[i].underThreshold = 0;
+
+        // printf("GL shared name %s\n", productsForGL[i].name);
 
         i++;
     }
 
     fclose(file);
-    printf("shm customer  is  %d\n", *totalInStock);
+    printf("shm total  is  %d\n", *totalInStock);
 
     return shmid;
 }

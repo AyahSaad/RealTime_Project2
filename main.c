@@ -16,6 +16,8 @@
 #include <sys/msg.h>
 #include <sys/prctl.h>
 #include <string.h>
+#include "openGLfunctions.h"
+#include <GL/glut.h>
 #include "team.h"
 
 int mainParent;
@@ -49,7 +51,7 @@ void sigusr1_handler(int signo)
     }
 }
 
-int main()
+int main(int argc, char **argv)
 {
     if (signal(SIGUSR1, sigusr1_handler) == SIG_ERR)
     {
@@ -75,8 +77,6 @@ int main()
 
     int *totalInStock = (int *)shmat(totalInStockShmid, 0, 0); // attach to main process memory space
 
-    printf("shm customer  is  %d\n", *totalInStock);
-
     if (totalInStock == (int *)-1)
     {
         perror("shmat");
@@ -91,11 +91,6 @@ int main()
     pthread_mutexattr_setpshared(&mutex_shared_attr, PTHREAD_PROCESS_SHARED);
 
     pthread_mutex_init(&totalInStockMutex, &mutex_shared_attr);
-
-    // pthread_mutex_lock(&totalInStockMutex);
-    // *totalInStock = 3; // set initial value of total in stock to 0
-    // printf("shm customer  is  %d\n", *totalInStock);
-    // pthread_mutex_unlock(&totalInStockMutex);
 
     char *configFilePath = "arguments.txt";
     char *productFilePath = "products.txt";
@@ -113,6 +108,12 @@ int main()
         perror("msgget");
         exit(1);
     }
+
+    initManagerInStock();
+
+    (*managersInStock)++;
+
+    printf("managers in stock in main is %d\n", *managersInStock);
 
     int pid;
 
@@ -169,22 +170,22 @@ int main()
         }
         else
         {
-            int status;
-            waitpid(forkArrivals, &status, 0);
+            // int status;
+            // waitpid(forkArrivals, &status, 0);
 
             // TODO: openGL and Sig Alaram for termination
 
-            // glutInit(&argc, argv);
-            // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-            // glutInitWindowSize(windowWidth, windowHeight);
-            // glutCreateWindow("Cash Registers");
+            glutInit(&argc, argv);
+            glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+            glutCreateWindow("Red Rectangle");
 
-            // glutDisplayFunc(display);
-            // glutReshapeFunc(reshape);
+            glutDisplayFunc(display);
+            glutReshapeFunc(reshape);
 
-            // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set clear color to black
+            // Set the clear color to white
+            glClearColor(1.0, 1.0, 1.0, 1.0);
 
-            // glutMainLoop();
+            glutMainLoop();
         }
     }
 

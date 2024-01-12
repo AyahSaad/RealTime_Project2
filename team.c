@@ -8,9 +8,47 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <signal.h>
+#include <sys/shm.h>
+
+int *managersInStock;
+
+int managerCountShmid;
+
+pthread_mutex_t managersInStockMutex;
+
+pthread_mutexattr_t mutex_shared_attrr;
+
+void initManagerInStock()
+{
+
+    key_t managersKey = ftok("products.txt", 'g'); // Generate a key for cashiers left int shm
+
+    if ((managerCountShmid = shmget(managersKey, sizeof(int), IPC_CREAT | 0666)) < 0)
+    { // Create a shared memory segment for total in stock int shm
+        perror("shmget");
+        exit(1);
+    }
+
+    int *managersInStock = (int *)shmat(managerCountShmid, 0, 0); // attach to main process memory space
+
+    if (managersInStock == (int *)-1)
+    {
+        perror("shmat");
+        exit(1);
+    }
+
+    pthread_mutexattr_init(&mutex_shared_attrr);
+    pthread_mutexattr_setpshared(&mutex_shared_attrr, PTHREAD_PROCESS_SHARED);
+
+    pthread_mutex_init(&managersInStockMutex, &mutex_shared_attrr);
+    *managersInStock = 3;
+    printf("managers now is %d\n", *managersInStock);
+}
 
 void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInStockmutex)
 {
+    printf("------------------- \n ");
+
     pthread_t threads[NUM_EMPLOYEES_PER_TEAM];
     int thread_ids[NUM_EMPLOYEES_PER_TEAM];
     ThreadArgs args[NUM_EMPLOYEES_PER_TEAM];
@@ -85,6 +123,12 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
                 *totalInStock -= productsCount;
 
                 pthread_mutex_unlock(totalInStockmutex);
+
+                // pthread_mutex_lock(&glCopyMutex);
+
+                // productsForGL[productNext].amountInStock -= productsCount;
+
+                // pthread_mutex_unlock(&glCopyMutex);
             }
             else
             {
@@ -92,6 +136,12 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
                 productsCount = products[productNext].amountInStock;
 
                 products[productNext].amountInStock -= products[productNext].amountInStock;
+
+                // pthread_mutex_lock(&glCopyMutex);
+
+                // productsForGL[productNext].amountInStock -= productsForGL[productNext].amountInStock;
+
+                // pthread_mutex_unlock(&glCopyMutex);
 
                 pthread_mutex_lock(totalInStockmutex);
 
@@ -139,6 +189,12 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
             printf("team %ld -------- finished\n", notifier.mtype);
 
+            // pthread_mutex_lock(&glCopyMutex);
+
+            // productsForGL[productNext].underThreshold = 0;
+
+            // pthread_mutex_unlock(&glCopyMutex);
+
             pthread_mutex_lock(&products[productNext].productMutex);
 
             products[productNext].underThreshold = 0;
@@ -182,17 +238,23 @@ void *thread_function(void *arg)
 
         pthread_mutex_lock(&products[next].productMutex);
 
-        printf("on shelve %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
+        printf("on shelve %d %d %d \n", products[next].currentAmountOnShelves, args.teamNum, args.threadNum);
 
-        products[next].initialAmountOnShelves += numberToShelf;
+        products[next].currentAmountOnShelves += numberToShelf;
 
-        printf("on shelve after %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
+        printf("on shelve after %d %d %d \n", products[next].currentAmountOnShelves, args.teamNum, args.threadNum);
 
         sleep((numberToShelf / 10) + 1); // simulate work
 
+        // pthread_mutex_lock(&glCopyMutex);
+
+        // productsForGL[next].currentAmountOnShelves -= numberToShelf;
+
+        // pthread_mutex_unlock(&glCopyMutex);
+
         // sleep(2);
 
-        printf("reached before \n");
+        printf("thread %d finished \n", args.threadNum);
 
         pthread_mutex_unlock(&products[next].productMutex);
         printf("reached after \n");
