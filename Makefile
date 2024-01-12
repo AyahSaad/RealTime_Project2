@@ -10,6 +10,7 @@ SRCS = main.c fileReaders.c team.c customers.c openGLfunctions.c
 OBJS = $(SRCS:.c=.o)
 
 # Target executable
+TARGET = exec
 
 all: $(TARGET)
 

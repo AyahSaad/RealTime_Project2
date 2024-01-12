@@ -3,85 +3,175 @@
 #include <stdio.h>
 #include "fileReaders.h"
 
-void drawStock(float topSpacing, float color[], int screenWidth, int screenHeight) {
-    glColor3fv(color);
 
-    // Set rectangle width to be the same as screen width
-    float rectangleWidth = (float)screenWidth / 2.0f;
+int SCREEN_HEIGHT;
+int SCREEN_WIDTH;
 
-    // Increase the height of the grey rectangle (adjust the factor as needed)
-    float greyRectangleHeight = -0.9f * screenHeight;
 
-    glBegin(GL_QUADS);
-    glVertex2f(-rectangleWidth / 2.0f, 1.0f - topSpacing);               // Top-left
-    glVertex2f(-rectangleWidth / 2.0f, 1.0f - topSpacing - greyRectangleHeight); // Bottom-left
-    glVertex2f(rectangleWidth / 2.0f, 1.0f - topSpacing - greyRectangleHeight);  // Bottom-right
-    glVertex2f(rectangleWidth / 2.0f, 1.0f - topSpacing);               // Top-right
-    glEnd();
-}
+Product test[7] = {
+    {"milk",1000,100,900,0},
+    {"Meat",1000,100,800,0},
+    {"Corn",1000,100,700,0},
+    {"Tomato",1000,50,60,0},
+    {"beef",1000,100,500,0},
+    {"flower",1000,50,400,0},
+    {"water",1000,50,400,0}
 
-void drawShelf(float shelfCenter, float shelfHeight) {
-    glColor3f(0.5f, 0.5f, 0.5f); // Gray color for shelves
-    // Calculate the shelf dimensions
-    float shelfWidth = 0.36f;
-    float shelfTop = shelfHeight / 0.5f;
-    float shelfBottom = -shelfHeight / 0.5f;
-    // Draw the shelf
-    glBegin(GL_QUADS);
-    glVertex2f(shelfCenter - shelfWidth / 2.0f, shelfTop);
-    glVertex2f(shelfCenter - shelfWidth / 2.0f, shelfBottom);
-    glVertex2f(shelfCenter + shelfWidth / 7.0f, shelfBottom);
-    glVertex2f(shelfCenter + shelfWidth / 7.0f, shelfTop);
-    glEnd();
-}
 
-void drawManager(float centerX, float centerY, float radius, int segments) {
-    glColor3f(1.0f, 1.0f, 1.0f); // White color
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(centerX, centerY); // Center of the circle
-    for (int i = 0; i <= segments; i++) {
-        float angle = 2.0f * M_PI * i / segments;
-        float x = radius * cos(angle);
-        float y = radius * sin(angle);
-        glVertex2f(centerX + x, centerY + y);
+};
+void drawItems(int screenWidth, int screenHeight)
+{
+    glColor3f(0.0, 0.0, 0.0);            
+    glRasterPos2f(0.0f, screenHeight * 0.8); // Initial position for the first item
+
+   
+ 
+    for (int i = 0; i < 7; i++)
+    {
+        char itemString[60]; 
+
+        //TODO: ADD THE MUTEX INITALIZATION 
+
+        //TODO: ADD THE PRODUCT NAME & PRICE;
+        sprintf(itemString, "%s : %d", test[i].name,test[i].amountInStock);
+
+        // Scale the text to achieve a larger font size
+        glPushMatrix();
+        // glScalef(1.5, 1.5, 1.0); // Adjust the scaling factor as needed
+
+        // Draw the text with scaled size
+        glutBitmapString(GLUT_BITMAP_HELVETICA_12, (const unsigned char *)itemString);
+
+        glPopMatrix();
+
+        // Move to the next position
+        glRasterPos2f(screenWidth * 0.05 +((i) * screenWidth * 0.1),screenHeight * 0.8);
     }
-    glEnd();
+   
 }
+void drawShelfsItems(int screenWidth, int screenHeight,float spacing)
+{
+    glColor3f(0.0, 0.0, 0.0);            
+    glRasterPos2f(0.05 * screenWidth, screenHeight * 0.7); // Initial position for the first item
+
+   
+ 
+    for (int i = 0; i < 7; i++)
+    {
+        float xPos = (0.2 * screenWidth) + (i * (screenWidth * 0.1 + spacing));
+        char itemString[60]; 
+
+        //TODO: ADD THE MUTEX INITALIZATION 
+
+        //TODO: ADD THE PRODUCT NAME & PRICE;
+        sprintf(itemString, "%s : %d", test[i].name,test[i].currentAmountOnShelves);
+
+        // Scale the text to achieve a larger font size
+        glPushMatrix();
+        // glScalef(1.5, 1.5, 1.0); // Adjust the scaling factor as needed
+
+        // Draw the text with scaled size
+        glutBitmapString(GLUT_BITMAP_HELVETICA_12, (const unsigned char *)itemString);
+
+        glPopMatrix();
+
+        // Move to the next position
+        glRasterPos2f(xPos,screenHeight * 0.7);
+    }
+   
+}
+
+
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
+// Get the screen width and height
+    int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
+    int screenHeight = glutGet(GLUT_WINDOW_HEIGHT);
 
-    float greyColor[] = {0.5f, 0.5f, 0.5f}; // Grey color
-    float redColor[] = {1.0f, 0.0f, 0.0f};   // Red color
+    // Set the rectangle dimensions
+    float rectangleWidth = screenWidth;
+    float rectangleHeight = screenHeight * 0.25;
 
-    // Get the screen size
-     int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
-    int  screenHeight = glutGet(GLUT_WINDOW_HEIGHT);
+    // Draw the red rectangle
+    glBegin(GL_POLYGON);
+    glColor3f(1.0, 0.0, 0.0);
+    glVertex2f(0.0, screenHeight - rectangleHeight);   // Top-left corner
+    glVertex2f(rectangleWidth, screenHeight - rectangleHeight); // Top-right corner
+    glVertex2f(rectangleWidth, screenHeight);  // Bottom-right corner
+    glVertex2f(0.0, screenHeight);             // Bottom-left corner
+    glEnd();
 
-    drawStock(0.5f, redColor, screenWidth, screenHeight);  // Bottom rectangle in red
+     // Set circle properties
+    float circleRadius = screenWidth * 0.03;
+    float circlePosY = screenHeight * 0.08;
 
-    float shelfHeight = 0.15f; // Adjust the shelf height as needed
-    for (int i = 0; i < PRODUCT_COUNT; i++) {
-        float shelfCenter = -1.0f + 0.3f + i * 0.25f; // Calculate the center of the shelf
-        drawShelf(shelfCenter, shelfHeight);
+        for (int i = 0; i < 5; ++i) {
+        float circlePosX = (i + 0.5) * (screenWidth / 5.0);
+        
+        glBegin(GL_POLYGON);
+        glColor3f(1.0, 1.0, 1.0);
+        for (int j = 0; j < 360; ++j) {
+            float angle = j * M_PI / 180.0;
+            float x = circlePosX + circleRadius * cos(angle);
+            float y = screenHeight - (circlePosY + circleRadius * sin(angle));
+            glVertex2f(x, y);
+        }
+        glEnd();
     }
+      float spacing = 0.0001 * screenWidth;
+    drawItems(screenWidth, screenHeight);
+   //drawShelfsItems(screenWidth,  screenHeight,spacing);
 
-    // Draw 10 white circles at the top of the screen with increased size and spacing
-    for (int i = 0; i < NUM_EMPLOYEES_PER_TEAM; i++) {
-        float circleSpacing = 0.05f;
-        float circleRadius = 0.08f;
-        float circleX = -0.6f + i * (circleSpacing + 2 * circleRadius);
-        float circleY = 0.85f;
-        drawManager(circleX, circleY, circleRadius, 30);
+int test2 = 0;
+void drawString(const char *str)
+{
+    for (int i = 0; str[i] != '\0'; ++i)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, str[i]);
     }
+}
+
+for (int i = 0; i < 7; i++) {
+    // Toggle the color for each rectangle
+    test2 = 1 - test2;
+
+    // Calculate the x-position for each rectangle
+    float xPos = 0.002 * screenWidth + i * (rectangleWidth * 0.13 + spacing);
+
+    // Draw the rectangle
+    glBegin(GL_POLYGON);
+    if (test2 == 0) {
+        glColor3f(0.5, 0.5, 0.5);
+    } else {
+        glColor3f(0.5, 0.5, 0.5);
+    }
+    glVertex2f(xPos, screenHeight * 0.7);                      // Top-left corner
+    glVertex2f(xPos + rectangleWidth * 0.1, screenHeight * 0.7); // Top-right corner
+    glVertex2f(xPos + rectangleWidth * 0.1, screenHeight * 0.3); // Bottom-right corner
+    glVertex2f(xPos, screenHeight * 0.3);                         // Bottom-left corner
+    glEnd();
+
+    char itemString[50];
+    glColor3f(0.0, 0.0, 0.0);
+    sprintf(itemString, "#Product on Shelf : %d", test[i].currentAmountOnShelves);
+    glRasterPos2f(xPos + (rectangleWidth * 0.1 )/6.3, screenHeight * 0.51);
+    drawString(itemString);
+    sprintf(itemString, "Product Name : %s", test[i].name);
+    glRasterPos2f(xPos + (rectangleWidth * 0.1 )/6.3, screenHeight * 0.55);
+    drawString(itemString);
+    
+}
 
     glFlush();
 }
 
-void reshape(int width, int height) {
-    glViewport(0, 0, width, height);
+void reshape(int w, int h)
+{
+    glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0.0, (GLdouble)w, 0.0, (GLdouble)h);
     glMatrixMode(GL_MODELVIEW);
 }
+

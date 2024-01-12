@@ -6,7 +6,6 @@
 #include <pthread.h>
 #include "fileReaders.h"
 
-
 typedef struct
 {
     int isEmployeeActive;
@@ -36,7 +35,7 @@ typedef struct
 } Notifier;
 
 void *thread_function(void *arg);
-void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t* totalInStockmutex);
+void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInStockmutex);
 void cleanupSharedMemoryTeams(void);
 
 #endif

@@ -17,14 +17,53 @@
 #include <sys/prctl.h>
 #include <string.h>
 #include "team.h"
+#include <GL/glut.h>
 #include "openGLfunctions.h"
-
-
 int mainParent;
+
 int totalInStockShmid;
+int productsShmid;
+int qid;
+
+void alarm_handler(int signo)
+{
+    if (signo == SIGALRM)
+    {
+        printf("Time's up! Terminating the process.\n");
+        msgctl(qid, IPC_RMID, NULL);
+        shmctl(totalInStockShmid, IPC_RMID, NULL);
+        shmctl(productsShmid, IPC_RMID, NULL);
+        kill(0, SIGKILL);
+    }
+}
+
+void sigusr1_handler(int signo)
+{
+
+    if (signo == SIGUSR1)
+    {
+        printf("Out of Stock! Terminating the process.\n");
+        msgctl(qid, IPC_RMID, NULL);
+        shmctl(totalInStockShmid, IPC_RMID, NULL);
+        shmctl(productsShmid, IPC_RMID, NULL);
+        kill(0, SIGKILL);
+    }
+}
 
 int main(int argc, char **argv)
 {
+    if (signal(SIGUSR1, sigusr1_handler) == SIG_ERR)
+    {
+        perror("Error setting up signal handler");
+        return EXIT_FAILURE;
+    }
+
+    if (signal(SIGALRM, alarm_handler) == SIG_ERR)
+    {
+        perror("Error setting up signal handler");
+        return EXIT_FAILURE;
+    }
+
     mainParent = getpid();
 
     key_t totalInStockKey = ftok(".", 's'); // Generate a key for cashiers left int shm
@@ -63,10 +102,12 @@ int main(int argc, char **argv)
     char *productFilePath = "products.txt";
 
     readConfigurationFile(configFilePath);
-    readProductsFile(productFilePath, totalInStock);
+    alarm(60 * MAX_SIMULATION_TIME);
 
-    key_t Queuekey = ftok(".", 'q');              // Generate a key for queue
-    int qid = msgget(Queuekey, IPC_CREAT | 0666); // Create a queue and get the queue id
+    productsShmid = readProductsFile(productFilePath, totalInStock);
+
+    key_t Queuekey = ftok(".", 'q');          // Generate a key for queue
+    qid = msgget(Queuekey, IPC_CREAT | 0666); // Create a queue and get the queue id
     printf("this is qid %d\n", qid);
     if (qid == -1)
     {
@@ -129,33 +170,21 @@ int main(int argc, char **argv)
         }
         else
         {
-            int status;
-           // waitpid(forkArrivals, &status, 0);
+            
 
             // TODO: openGL and Sig Alaram for termination
-         glutInit(&argc, argv);
-         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-         glutInitWindowSize(1800, 800);
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutCreateWindow("Red Rectangle");
 
-         glutCreateWindow("Supermarket Product Shelving Simulation");
-         glutDisplayFunc(display);
-         glutReshapeFunc(reshape);
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
 
-         glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set clear color to black
+    // Set the clear color to white
+    glClearColor(1.0, 1.0, 1.0, 1.0);
 
-          glutMainLoop();
-
-            // glutInit(&argc, argv);
-            // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-            // glutInitWindowSize(windowWidth, windowHeight);
-            // glutCreateWindow("Cash Registers");
-
-            // glutDisplayFunc(display);
-            // glutReshapeFunc(reshape);
-
-            // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set clear color to black
-
-            // glutMainLoop();
+    glutMainLoop();
+  
         }
     }
 
