@@ -1,18 +1,15 @@
 #ifndef openGL_H
 #define openGL_H
 
-extern int windowWidth;
-extern int windowHeight;
-extern int triangleWidth;
-extern int triangleHeight;
-extern int yOffset;
-extern int circleRadius;
+#include <GL/glut.h>
+#include <math.h>
 
 
-void drawItems(void);
-void drawWhiteRectangle(void);
-void drawCashier(int cashier, int index, int queueSize, int itemsCount,int behavior, int tpi);
+
+void drawStock(float topSpacing, float color[], int screenWidth, int screenHeight);
+void drawShelf(float shelfCenter, float shelfHeight);
+void drawManager(float centerX, float centerY, float radius, int segments);
 void display(void);
-void reshape(int w, int h);
+void reshape(int width, int height);
 
 #endif

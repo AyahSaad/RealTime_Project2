@@ -60,7 +60,7 @@ void cleanupSharedMemory()
     }
 }
 
-void readProductsFile(const char *filename)
+void readProductsFile(const char *filename, int *totalInStock)
 {
 
     products = initSharedMemory();
@@ -93,6 +93,7 @@ void readProductsFile(const char *filename)
         }
 
         products[i].initialAmountOnShelves = atoi(token);
+        products[i].currentAmountOnShelves = atoi(token);
 
         token = strtok(NULL, ",");
         if (token == NULL)
@@ -102,6 +103,8 @@ void readProductsFile(const char *filename)
 
         products[i].amountInStock = atoi(token);
 
+        *totalInStock += products[i].amountInStock;
+
         pthread_mutexattr_t mutex_shared_attr;
 
         pthread_mutexattr_init(&mutex_shared_attr);
@@ -109,13 +112,13 @@ void readProductsFile(const char *filename)
 
         pthread_mutex_init(&products[i].productMutex, &mutex_shared_attr);
 
-        // printf("Product: %s, Amount on Shelves: %d, Amount in Stock: %d\n",
-        //        products[i].name, products[i].initialAmountOnShelves, products[i].amountInStock);
+        products[i].underThreshold = 0;
 
         i++;
     }
 
     fclose(file);
+    printf("shm customer  is  %d\n", *totalInStock);
 }
 
 void readConfigurationFile(const char *filename)
