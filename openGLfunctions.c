@@ -26,14 +26,14 @@ void drawItems(int screenWidth, int screenHeight)
 
    
  
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < PRODUCT_COUNT; i++)
     {
         char itemString[60]; 
 
         //TODO: ADD THE MUTEX INITALIZATION 
 
         //TODO: ADD THE PRODUCT NAME & PRICE;
-        sprintf(itemString, "%s : %d", test[i].name,test[i].amountInStock);
+        sprintf(itemString, "%s : %d", products[i].name,products[i].amountInStock);
 
         // Scale the text to achieve a larger font size
         glPushMatrix();
@@ -64,7 +64,7 @@ void drawShelfsItems(int screenWidth, int screenHeight,float spacing)
         //TODO: ADD THE MUTEX INITALIZATION 
 
         //TODO: ADD THE PRODUCT NAME & PRICE;
-        sprintf(itemString, "%s : %d", test[i].name,test[i].currentAmountOnShelves);
+        sprintf(itemString, "%s : %d", products[i].name,products[i].currentAmountOnShelves);
 
         // Scale the text to achieve a larger font size
         glPushMatrix();
@@ -154,10 +154,10 @@ for (int i = 0; i < 7; i++) {
 
     char itemString[50];
     glColor3f(0.0, 0.0, 0.0);
-    sprintf(itemString, "#Product on Shelf : %d", test[i].currentAmountOnShelves);
+    sprintf(itemString, "#Product on Shelf : %d", products[i].currentAmountOnShelves);
     glRasterPos2f(xPos + (rectangleWidth * 0.1 )/6.3, screenHeight * 0.51);
     drawString(itemString);
-    sprintf(itemString, "Product Name : %s", test[i].name);
+    sprintf(itemString, "Product Name : %s", products[i].name);
     glRasterPos2f(xPos + (rectangleWidth * 0.1 )/6.3, screenHeight * 0.55);
     drawString(itemString);
     

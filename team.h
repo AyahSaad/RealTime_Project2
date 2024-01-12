@@ -11,7 +11,7 @@ typedef struct
     int isEmployeeActive;
     int isManagerActive;
     int itemIndex;
-    pthread_mutex_t *teamsMutex;
+    pthread_mutex_t teamsMutex;
 }TeamS;
 
 typedef struct

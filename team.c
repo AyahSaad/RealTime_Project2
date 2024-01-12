@@ -9,6 +9,48 @@
 #include <sys/msg.h>
 #include <signal.h>
 
+
+
+key_t Taemkey;
+
+TeamS *initSharedMemoryTeam()
+{
+    Taemkey = ftok("arguments.txt", 'L');
+
+    int shmid;
+
+    shmid = shmget(Taemkey, sizeof(TeamS) * NUM_SHELVING_TEAMS, IPC_CREAT | 0666);
+    if (shmid == -1)
+    {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    TeamS *t = shmat(shmid, NULL, 0);
+    if (t == (TeamS *)-1)
+    {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    return t;
+}
+
+// void cleanupSharedMemoryTeams()
+// {
+//     if (shmdt(TeamS) == -1)
+//     {
+//         printf("shmdt failed");
+//         perror("shmdt");
+//         exit(EXIT_FAILURE);
+//     }
+
+//     if (shmctl(shmget(Taemkey, sizeof(TeamS) * NUM_SHELVING_TEAMS, IPC_CREAT | 0666), IPC_RMID, NULL) == -1)
+//     {
+//         perror("shmctl");
+//         exit(EXIT_FAILURE);
+//     }
+// }
 void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInStockmutex)
 {
     pthread_t threads[NUM_EMPLOYEES_PER_TEAM];
