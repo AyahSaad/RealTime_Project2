@@ -40,6 +40,7 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
         args[i].productsCount = &productsCount; // for testing
         args[i].threadNum = thread_ids[i];
         args[i].teamNum = (int)type;
+        args[i].barrier = &barrier;
 
         ThreadArgs *p = malloc(sizeof *p);
         *p = args[i];
@@ -59,12 +60,14 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
         if ((recived = msgrcv(qid, &notifier, notifierLenghth, type, IPC_NOWAIT)) != -1)
         {
             // TODO: here manager receives a message and starts work
-            printf("here -----------------------------\n");
+            printf("here -----------------------------team %ld\n", notifier.mtype);
 
             productNext = notifier.index; // TODO: this is the index of the product they will be working on
-            pthread_mutex_t productMutex = products[productNext].productMutex;
+            // pthread_mutex_t productMutex = products[productNext].productMutex;
 
-            pthread_mutex_lock(&productMutex);
+            pthread_mutex_lock(&products[productNext].productMutex);
+
+            printf("got product mutex %d\n", productNext);
 
             productsCount = products[productNext].initialAmountOnShelves - products[productNext].currentAmountOnShelves;
 
@@ -103,11 +106,15 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
             // printf("on shelve after %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
 
-            pthread_mutex_unlock(&productMutex);
+            pthread_mutex_unlock(&products[productNext].productMutex);
 
             sleep((productsCount / 20) + 1); // simulate work
 
+            // sleep(2);
+
             pthread_mutex_lock(&condMutex);
+
+            printf("Manager of team %ld awake now  ----------\n", type);
 
             // Signal all threads that a task is available
             // TODO: here employees become active
@@ -116,15 +123,10 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
             pthread_mutex_unlock(&condMutex);
             // TODO: here after the manger brought the stock from storage he waits for employees to finish their job (manager not active but the employees are working)
+
             pthread_barrier_wait(&barrier); // wait on barrier until all threads are done
 
             // TODO: here the team finished its job and is going back to sleep
-
-            pthread_mutex_lock(&productMutex);
-
-            products[productNext].underThreshold = 0;
-
-            pthread_mutex_unlock(&productMutex);
 
             pthread_mutex_lock(&condMutex);
             /*reset cond flag so employees can wait for it.
@@ -132,6 +134,14 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
             note that we should implemnet some sleep right after the barrier for the employees so we could assure that it has been reset*/
             task_completed = 0;
             pthread_mutex_unlock(&condMutex);
+
+            printf("team %ld -------- finished\n", notifier.mtype);
+
+            pthread_mutex_lock(&products[productNext].productMutex);
+
+            products[productNext].underThreshold = 0;
+
+            pthread_mutex_unlock(&products[productNext].productMutex);
         }
     }
 }
@@ -147,13 +157,14 @@ void *thread_function(void *arg)
 
     while (1)
     {
-        sleep(2); // wait a bit to make sure that the flag had been reset by manager
+        sleep(4); // wait a bit to make sure that the flag had been reset by manager
 
         pthread_mutex_lock(args.condMutex);
 
         if (!*args.condFlag)
         {
             printf(" flag val %d\n", *args.condFlag);
+            printf("thread %d is reset from team %d\n", args.threadNum, args.teamNum);
             pthread_cond_wait(args.cond, args.condMutex);
         }
 
@@ -162,12 +173,12 @@ void *thread_function(void *arg)
         printf("woken up thread team: %d I'm thread: %d\n", args.teamNum, args.threadNum);
 
         int next = *args.nextProductIndex;
-        pthread_mutex_t productMutex = products[next].productMutex;
-        int numberToShelf = (*args.productsCount) / NUM_EMPLOYEES_PER_TEAM;
+        // pthread_mutex_t productMutex = products[next].productMutex;
+        int numberToShelf = ((*args.productsCount) / NUM_EMPLOYEES_PER_TEAM) + 1;
 
-        // printf("to be shelved by %d %d %d \n", numberToShelf, args.teamNum, args.threadNum);
+        printf("to be shelved by %d %d %d \n", numberToShelf, args.teamNum, args.threadNum);
 
-        pthread_mutex_lock(&productMutex);
+        pthread_mutex_lock(&products[next].productMutex);
 
         printf("on shelve %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
 
@@ -177,9 +188,15 @@ void *thread_function(void *arg)
 
         sleep((numberToShelf / 10) + 1); // simulate work
 
-        pthread_mutex_unlock(&productMutex);
+        // sleep(2);
+
+        printf("reached before \n");
+
+        pthread_mutex_unlock(&products[next].productMutex);
+        printf("reached after \n");
 
         pthread_barrier_wait(args.barrier);
+        printf("reached after barrier \n");
     }
 
     free(arg);
