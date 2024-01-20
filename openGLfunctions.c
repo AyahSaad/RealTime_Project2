@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "fileReaders.h"
+#include "team.h"
 
 int SCREEN_HEIGHT;
 int SCREEN_WIDTH;
@@ -11,20 +12,14 @@ void drawItems(int screenWidth, int screenHeight)
     glColor3f(0.0, 0.0, 0.0);
     glRasterPos2f(0.0f, screenHeight * 0.8); // Initial position for the first item
 
-    // pthread_mutex_lock(&glCopyMutex);
-
     for (int i = 0; i < PRODUCT_COUNT; i++)
     {
         char itemString[60];
 
-        // TODO: ADD THE MUTEX INITALIZATION
-
-        // TODO: ADD THE PRODUCT NAME & PRICE;
         sprintf(itemString, "%s : %d", products[i].name, products[i].amountInStock);
 
         // Scale the text to achieve a larger font size
         glPushMatrix();
-        // glScalef(1.5, 1.5, 1.0); // Adjust the scaling factor as needed
 
         // Draw the text with scaled size
         glutBitmapString(GLUT_BITMAP_HELVETICA_12, (const unsigned char *)itemString);
@@ -34,8 +29,6 @@ void drawItems(int screenWidth, int screenHeight)
         // Move to the next position
         glRasterPos2f(screenWidth * 0.05 + ((i)*screenWidth * 0.1), screenHeight * 0.8);
     }
-
-    // pthread_mutex_unlock(&glCopyMutex);
 }
 void drawShelfsItems(int screenWidth, int screenHeight, float spacing)
 {
@@ -47,14 +40,10 @@ void drawShelfsItems(int screenWidth, int screenHeight, float spacing)
         float xPos = (0.2 * screenWidth) + (i * (screenWidth * 0.1 + spacing));
         char itemString[60];
 
-        // TODO: ADD THE MUTEX INITALIZATION
-
-        // TODO: ADD THE PRODUCT NAME & PRICE;
         sprintf(itemString, "%s : %d", products[i].name, products[i].currentAmountOnShelves);
 
         // Scale the text to achieve a larger font size
         glPushMatrix();
-        // glScalef(1.5, 1.5, 1.0); // Adjust the scaling factor as needed
 
         // Draw the text with scaled size
         glutBitmapString(GLUT_BITMAP_HELVETICA_12, (const unsigned char *)itemString);
@@ -90,7 +79,7 @@ void display()
     float circleRadius = screenWidth * 0.03;
     float circlePosY = screenHeight * 0.08;
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < *managersInStock; ++i)
     {
         float circlePosX = (i + 0.5) * (screenWidth / 5.0);
 
@@ -107,7 +96,6 @@ void display()
     }
     float spacing = 0.0001 * screenWidth;
     drawItems(screenWidth, screenHeight);
-    // drawShelfsItems(screenWidth,  screenHeight,spacing)
 
     for (int i = 0; i < 7; i++)
     {

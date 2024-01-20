@@ -34,6 +34,8 @@ void alarm_handler(int signo)
         msgctl(qid, IPC_RMID, NULL);
         shmctl(totalInStockShmid, IPC_RMID, NULL);
         shmctl(productsShmid, IPC_RMID, NULL);
+        shmctl(managerCountShmid, IPC_RMID, NULL);
+
         kill(0, SIGKILL);
     }
 }
@@ -47,6 +49,8 @@ void sigusr1_handler(int signo)
         msgctl(qid, IPC_RMID, NULL);
         shmctl(totalInStockShmid, IPC_RMID, NULL);
         shmctl(productsShmid, IPC_RMID, NULL);
+        shmctl(managerCountShmid, IPC_RMID, NULL);
+
         kill(0, SIGKILL);
     }
 }
@@ -111,8 +115,6 @@ int main(int argc, char **argv)
 
     initManagerInStock();
 
-    (*managersInStock)++;
-
     printf("managers in stock in main is %d\n", *managersInStock);
 
     int pid;
@@ -170,14 +172,9 @@ int main(int argc, char **argv)
         }
         else
         {
-            // int status;
-            // waitpid(forkArrivals, &status, 0);
-
-            // TODO: openGL and Sig Alaram for termination
-
             glutInit(&argc, argv);
             glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-            glutCreateWindow("Red Rectangle");
+            glutCreateWindow("SuperMarket Simulation");
 
             glutDisplayFunc(display);
             glutReshapeFunc(reshape);
@@ -188,9 +185,6 @@ int main(int argc, char **argv)
             glutMainLoop();
         }
     }
-
-    // Cleanup shared memory
-    // cleanupSharedMemory();
 
     return 0;
 }

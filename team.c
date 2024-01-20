@@ -29,7 +29,7 @@ void initManagerInStock()
         exit(1);
     }
 
-    int *managersInStock = (int *)shmat(managerCountShmid, 0, 0); // attach to main process memory space
+    managersInStock = (int *)shmat(managerCountShmid, 0, 0); // attach to main process memory space
 
     if (managersInStock == (int *)-1)
     {
@@ -41,13 +41,13 @@ void initManagerInStock()
     pthread_mutexattr_setpshared(&mutex_shared_attrr, PTHREAD_PROCESS_SHARED);
 
     pthread_mutex_init(&managersInStockMutex, &mutex_shared_attrr);
-    *managersInStock = 3;
+    *managersInStock = 0;
     printf("managers now is %d\n", *managersInStock);
 }
 
 void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInStockmutex)
 {
-    printf("------------------- \n ");
+    printf("------------------- %d \n ", *managersInStock);
 
     pthread_t threads[NUM_EMPLOYEES_PER_TEAM];
     int thread_ids[NUM_EMPLOYEES_PER_TEAM];
@@ -83,7 +83,6 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
         ThreadArgs *p = malloc(sizeof *p);
         *p = args[i];
 
-        // thread_ids[i] = i;
         pthread_create(&threads[i], NULL, thread_function, p);
     }
 
@@ -99,19 +98,21 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
         {
             sleep(2);
 
-            // TODO: here manager receives a message and starts work
             printf("here -----------------------------team %ld\n", notifier.mtype);
 
-            productNext = notifier.index; // TODO: this is the index of the product they will be working on
-            // pthread_mutex_t productMutex = products[productNext].productMutex;
+            productNext = notifier.index;
+
+            pthread_mutex_lock(&managersInStockMutex);
+
+            *managersInStock += 1;
+
+            pthread_mutex_unlock(&managersInStockMutex);
 
             pthread_mutex_lock(&products[productNext].productMutex);
 
             printf("got product mutex %d\n", productNext);
 
             productsCount = products[productNext].initialAmountOnShelves - products[productNext].currentAmountOnShelves;
-
-            // printf("on shelve %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
 
             if (products[productNext].amountInStock >= productsCount)
             {
@@ -123,12 +124,6 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
                 *totalInStock -= productsCount;
 
                 pthread_mutex_unlock(totalInStockmutex);
-
-                // pthread_mutex_lock(&glCopyMutex);
-
-                // productsForGL[productNext].amountInStock -= productsCount;
-
-                // pthread_mutex_unlock(&glCopyMutex);
             }
             else
             {
@@ -137,12 +132,6 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
                 products[productNext].amountInStock -= products[productNext].amountInStock;
 
-                // pthread_mutex_lock(&glCopyMutex);
-
-                // productsForGL[productNext].amountInStock -= productsForGL[productNext].amountInStock;
-
-                // pthread_mutex_unlock(&glCopyMutex);
-
                 pthread_mutex_lock(totalInStockmutex);
 
                 *totalInStock -= productsCount;
@@ -150,17 +139,20 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
                 if (*totalInStock == 0)
                 {
                     kill(getppid(), SIGUSR1);
-                    // pthread_mutex_unlock(totalInStockmutex);
                 }
 
                 pthread_mutex_unlock(totalInStockmutex);
             }
 
-            // printf("on shelve after %d %d %d \n", products[next].initialAmountOnShelves, args.teamNum, args.threadNum);
-
             pthread_mutex_unlock(&products[productNext].productMutex);
 
             sleep((productsCount / 20) + 1); // simulate work
+
+            pthread_mutex_lock(&managersInStockMutex);
+
+            *managersInStock -= 1;
+
+            pthread_mutex_unlock(&managersInStockMutex);
 
             // sleep(2);
 
@@ -169,16 +161,12 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
             printf("Manager of team %ld awake now  ----------\n", type);
 
             // Signal all threads that a task is available
-            // TODO: here employees become active
             task_completed = 1;
             pthread_cond_broadcast(&task_available);
 
             pthread_mutex_unlock(&condMutex);
-            // TODO: here after the manger brought the stock from storage he waits for employees to finish their job (manager not active but the employees are working)
 
             pthread_barrier_wait(&barrier); // wait on barrier until all threads are done
-
-            // TODO: here the team finished its job and is going back to sleep
 
             pthread_mutex_lock(&condMutex);
             /*reset cond flag so employees can wait for it.
@@ -188,12 +176,6 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
             pthread_mutex_unlock(&condMutex);
 
             printf("team %ld -------- finished\n", notifier.mtype);
-
-            // pthread_mutex_lock(&glCopyMutex);
-
-            // productsForGL[productNext].underThreshold = 0;
-
-            // pthread_mutex_unlock(&glCopyMutex);
 
             pthread_mutex_lock(&products[productNext].productMutex);
 
@@ -206,8 +188,6 @@ void teamFunc(long type, int qid, int *totalInStock, pthread_mutex_t *totalInSto
 
 void *thread_function(void *arg)
 {
-
-    // TODO: check if the shelf you want to notify about has stock in customer
 
     ThreadArgs args = *(ThreadArgs *)arg;
 
@@ -231,7 +211,7 @@ void *thread_function(void *arg)
         printf("woken up thread team: %d I'm thread: %d\n", args.teamNum, args.threadNum);
 
         int next = *args.nextProductIndex;
-        // pthread_mutex_t productMutex = products[next].productMutex;
+
         int numberToShelf = ((*args.productsCount) / NUM_EMPLOYEES_PER_TEAM) + 1;
 
         printf("to be shelved by %d %d %d \n", numberToShelf, args.teamNum, args.threadNum);
@@ -245,14 +225,6 @@ void *thread_function(void *arg)
         printf("on shelve after %d %d %d \n", products[next].currentAmountOnShelves, args.teamNum, args.threadNum);
 
         sleep((numberToShelf / 10) + 1); // simulate work
-
-        // pthread_mutex_lock(&glCopyMutex);
-
-        // productsForGL[next].currentAmountOnShelves -= numberToShelf;
-
-        // pthread_mutex_unlock(&glCopyMutex);
-
-        // sleep(2);
 
         printf("thread %d finished \n", args.threadNum);
 
