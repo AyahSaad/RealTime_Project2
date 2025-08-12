@@ -85,6 +85,8 @@ GCC Compiler
 
 OpenGL & GLUT libraries installed:
 sudo apt-get install freeglut3-dev
+
 🏗️ Build & Run
+
 gcc main.c -o supermarket -lGL -lGLU -lglut -lpthread
 ./supermarket
