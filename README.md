@@ -80,9 +80,9 @@ Timeout → SIGALRM
 
 # ▶️ How to Run
 🧰 Prerequisites
+
 Linux OS
 GCC Compiler
-
 OpenGL & GLUT libraries installed:
 sudo apt-get install freeglut3-dev
 
